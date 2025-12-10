@@ -82,6 +82,7 @@
     - if you created a header file titled `calc.h`, you would write:
         - `#include "calc.h"`
     - note how we replace `<>` with `""`, and include `.h`!
+- **THE REASON YOU WANT TO USE <> OR "" RESPECTIVELY IS BECAUSE IT CHANGES WHERE THE COMPILER WILL SEARCH FOR FILES FIRST. IF YOU USE ANGLE BRACKETS, IT WILL LOOK IN SYSTEM PATHS FIRST, WHICH IS WHERE STANDARD LIBRARIES LIVE ON YOUR MACHINE. IF YOU USE QUOTES, IT WILL SEARCH THE LOCAL DIRECTORY FIRST, WHICH IS OFTEN WHERE HEADER FILES YOU CREATE WILL LIVE (LIKE IN A FOLDER TITLED INCLUDE).**
 
 ### PROGRAM COMPILATION
 - We start all compilations with `c++`
@@ -131,3 +132,48 @@
         - `cout << "Hello!" << endl;`
 - we save some space, but we should **never use `using` in header files**. It can cause conflicts because all `.cpp` files that inherit from the header will have this namespace convenience
 
+### EXCERCISE: SHELL COMMANDS
+- Create a directory named "proj"
+    - `mkdir proj`
+- Move into it
+    - `cd proj`
+- Create an empty file named "data.txt"
+    - `touch data.txt` OR `vim data.txt` + `:wq`
+- Copy it into "backup.txt"
+    - `cp data.txt backup.txt`
+- Delete "backup.txt"
+    - `rm backup.txt`
+- Remove entire "proj" directory
+    - `cd ..` + `rm -rf proj` OR `rm -rf ../proj`
+
+### EXCERCISE: GIT BASICS
+- You made changes to main.cpp. Write the git commands to:
+    1. Stage the file
+    2. Commit it with message "fix bug"
+    3. Push it
+    4. Create ans switch to a new branch named featureX
+- Answer:
+    1. `git add main.cpp`
+    2. `git commit -m "fix bug"`
+    3. `git push`
+    4. `git checkout -b featureX`
+- alternative answer (assuming main is the only thing you changed):
+    1. `git commit -am "fix bug"`
+    2. `git push`
+    3. `git checkout -b featureX`
+
+### EXCERCISE: INCLUDES
+- State which includes should be used for the following examples. Explain:
+    1. vector
+    2. myheader.h
+- answers:
+    1. The correct form is `#include <vector>`. This is because "vector" is part of the standard library. It is desirable to use angle brackets because they search system paths first, which is where "vector" would live closer to.
+    2. The correct form is `#include "myheader.h"`. This is because "myheader.h" is not part of the standard library. It is desirable to use quotes because they search local directories first, where something like "myheader.h" would live (in a folder like include).
+
+### EXCERCISE: COMPILE
+- Write the c++ command to compile a program given that `main.cpp` is in "src/main.cpp", and `project.h` is in an include "directoryprog":
+    - `c++ -Iinclude src/main.cpp -o program.out -std=c++17`
+
+### EXCERCISE: PRAGMA ONCE
+- Explain what `#pragma once` does and why it is helpful:
+    - abc
