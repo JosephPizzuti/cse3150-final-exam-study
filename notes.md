@@ -110,6 +110,7 @@
 - this will make it so that a header files contents are only processed **1** time during compilation of a src file
 - this will protect it against numerous inclusions, whether directly or indirectly through other header files
 - you could also use `#ifndef`, `#define`, and `#endif`, which accomplishes the same thing as `#pragma once`
+- The result of using `#pragma once` properly in your program is that you will avoid **redefinition errors** and your time to compile will increase
 
 ### NAMESPACES
 - the purpose of making namespaces is prevent naming collisions and group code logically
@@ -176,4 +177,229 @@
 
 ### EXCERCISE: PRAGMA ONCE
 - Explain what `#pragma once` does and why it is helpful:
-    - abc
+    - pragma once prevents header files from being included multiple times by a given program or `.cpp` file, regardless if it has multiple includes of the same file or other header files also include the file. The result of this is that their won't be any redefinition errors and compile time is sped up.
+
+### STRING FUNCTIONS + INSIGHTS
+- Assume defined string `std::string s = "Hello World!";`
+- `size_t std::string::size()`
+    - Use Case: `s.size()` -> `12`
+    - Note that `s.length()` does the same thing and follows the same pattern.
+    - returns the total length of the string, or the number of characters that it contains
+    - invoked as a dot function that takes no arguments
+- `std::string substr(size\_t pos = 0, size\_t len = npos) const;`
+    - Use Cases:
+        1. `s.substr()` -> `Hello World!`
+        2. `s.substr(0,5)` -> `Hello`
+        3. `s.substr(5,6)` -> `World!`
+        4. `s.substr(0,99)` -> `Hello World!`
+        5. `s.substr(1,0)` -> `''`
+        6. `s.substr(99,3)` -> `Exception: std::out_of_range`
+    - substr takes in a starting position, pos, and a number of characters, len, and returns a substring based on those two values
+    - By default, pos = 0 and len = npos, meaning the default output of substr with no args will return the original string
+    - assuming a pos that is non-zero, giving len a value greater than 0 will output a string of size len, that contains characters starting from index=pos to index=pos+len (including the final indexed value). 
+    - if substr is given a length that would have it go outside the bounds of the string, it will simply return the string from the given starting position to end.
+    - if a pos is given that exceeds a valid position in the string, it will throw and exception. if len is 0 substr will return `''`
+- `std::string::npos`
+    - this is used for a variety of cases. It holds the value -1, which because the value itself is of type `size_t`, will return the maximum possible value of `size_t`. It guarantees that it evalutates to an "out-of-bounds" index
+    - Notably, strings built in functions make use of this to indicate index errors or to get "until end of string" values.
+    - substr uses it as the default length
+    - `std::string::find` will return this value if it fails to find its given string within another string
+- `size_t find(std::string str, size_t pos=0)`
+    - this is used to return the index of a substring found with another string
+    - used by doing:
+        - `s.find(my_substr, [optional pos]);`
+    - it will find a substr with a string s with the dot operator
+    - if it finds the substr, it will return the starting index from which the substring is found
+    - you can optionally give it a `size_t pos`, which defaults as 0, to only check a string from a certain index onwards
+    - if it fails to find the substr, it will return `std::string::npos`
+
+### EXCERCISE: SIZE\_T AND NPOS
+- Explain:
+    1. What type `size_t` represents
+    2. what `std::string::npos` means
+- Answers:
+    1. `size_t` is a type that represents all possible positive integer values. it allows a greater range of positive numbers to be accessed by having the sign bit used to represent magnitude. This doubles the amount of positive values a standard int could hold. In other words, it is an unsigned int OR unsigned long. **an unsigned integer type used for sizes and indexes**
+    2. `std::string::npos` represents `size_t` value -1, which is the highest possible unsigned long value available to your system. many string functions use it to signify error or inability to find a valid index. **signifies "not found"**
+
+### EXCERCISE: C STRING VS STD::STRING
+- List two major differences beteween C strings (`char*`) and C++ `std::string`
+    1. `char*` is a a pointer to a list of characters that needs to be allocated space at compile time
+    2. `std::string` is a list of characters that will dynamically allocate space as needed.
+    3. C strings require manual size tracking; std::string knows its own length
+    4. C strings are raw arrays of chars ending '\0' ; std::string manages memory automatically
+
+### GLOBAL/STATIC VS STACK VS HEAP
+- Global/Static Storage
+    - global variables, static variables, string literals live here
+        1. `int g = 5;`              // global
+        2. `static int x = 10;`     // static local
+        3. `const char* s = "hi";`   // string literal in static storage
+    - exists for a programs entire lifetime (exists before main and after main)
+    - created once, size is fixed at compile time
+- The Stack
+    - Function params, local variables, temporary objects, return addresses
+        `void foo() {
+            int x = 3;      // on the stack
+            std::string s;  // the string object is on the stack; internal buffer may be heap
+        }`
+    - Lifetime of objects made on stack created when their scope begins
+    - destroyed automatically at end of scope
+    - very fast allocation, fixed size
+- The Heap
+    - Manually allocated objects or objects w/ smart pointers
+        `int* p = new int(5);`
+        `auto* arr = new double[1000];`
+        `auto sp = std::make_unique<MyClass>();`
+    - lifetime controlled manually with delete / delete[]
+    - (or freed automatically w/ smart pointers)
+    - slow allocation
+    - flexible size, can be large (depends on system ram)
+
+### EXCERCISE: MEMORY REGIONS
+- classify each of the following vars as being stored on stack, heap, global/static memory:
+`# include <iostream>
+int g = 5;                  // (1)
+int main () {
+    int x = 10;             // (2)
+    int* p = new int(20) ;  // (3)
+    static int y = 7;       // (4)
+    return 0;
+}`
+- answers:
+    1. global/static
+    2. stack
+    3. heap
+    4. global/static
+
+### FREEING MEMORY
+- When you allocate something on the heap, you must free it (unless its a smart pointer)
+- For single objects, like an int, you can use `delete <var>`
+- For non-singular objects, like lists or strings, you can use `delete[] <var>`
+
+### CONST AND REFERENCES (&)
+- you can put `const` before a type declaration to indicate that a variable should never have its value changed
+    - trying to do so will cause an error
+- you can call something by reference by putting `&` after its type to access the variable directly in a different scope
+    - this prevents the compiler from creating a local copy
+    - if you modify something called by reference it will change the original variable
+- you can combine both to prevent the compiler from making a copy of a variable and preventing yourself from changing it on accident
+    - this is best done for strings where it can be very expensive to make copies of
+
+### UNSIGNED VS SIGNED
+- signed values require a sign bit on a systems level which reduces the maximum range of values +/- in exchange for having both
+- unsigned values free up the sign bit for magnitude, allowing more numbers in the positive direction
+- if you were to do `unsigned int a = -5`, the value would wrap around and produce a very large positive number
+
+### SPIRAL RULE
+- start at variable, going up and to the right and reading it out
+- when dealing with const, you should wrap it with the first thing to the left. if nothing is there, do it with the right instead. best visualized with `()`
+- example:
+    - `int *(*fp)(double);`
+    - fp is a pointer
+    - to a function that takes a double
+    - and returns a pointer to int
+- example:
+    - `int* p;`
+    - p is a pointer
+    - to an int
+    - *neither the pointer or data is const*
+- example:
+    - `const int* p`
+    - `(const int)* p`
+    - p is a pointer
+    - to a const int
+    - *the data is constant*
+- example:
+    - `int* const p = &x`
+    - `int(* const) p = &x`
+    - p is a const pointer
+    - to an int
+    - *the pointer is const*
+- example:
+    - `const int* const p = &x`
+    - `(const int)(* const) p = &x`
+    - p is a const *
+    - to a const int
+    - *both the data and pointer is const*
+
+### GOTO
+- dont use goto. it makes control flow hard and you should always use built in structures like for instead
+
+### EXCEPTIONS
+- try-throw-catch
+    - Try: wrap around code that could result in an error
+    - Throw: if an error occurs, thrown an exception
+    - Catch: goes outside of the try block and gets evaluated if a corresponding throw is met
+
+### STRUCT VS CLASS
+- The only difference between struct and class is that struct is public by default and class is private by default
+
+### PUBLIC VS PRIVATE VS PROTECTED
+- public is accessible everywhere
+- private is only accessible inside the class
+- protected is only accesible in derived classes
+
+### CLASS METHODS
+- Methods are either defined inside the class body as normal
+- OR you can define them outside the class doing ClassName::method
+
+### ABSTRACT CLASSES, PURE METHODS, VIRTUAL METHODS
+- a class is abstract if it has at least one pure virtual function
+- you implement a pure virtual function by marking it `virutal` and ending it with `= 0;`
+    - also known as a pure method
+- you cannot instantiate an abstract class
+- they are designed to force subclasses to declare certain functionalities
+    - note that these implemented functions should use the `override` keyword at the end of their declaration
+
+### EXCERCISE: VIRTUAL METHODS
+- given a base pointer:
+- `Shape* a = new Circle(2.0);`
+- Explain why calling `s-\>area()` invokes the Circle version
+    - `s->area` invokes the circle version because area() is virtual. C++ uses runtime dispatch (the vtable) to call the methods belonging to the actual object type, which is Circle and not shape.
+
+### INHERITANCE AND SUBSUMPTION
+- public inheritance: "is-a" relationship, public stays public
+- protected inheritance: public becomes protected
+- private inheritance: public becomes private
+- subsumption: a derived object can be treated as a base object
+    - works automatically with pointer and references
+    - enables runtime polymorphism
+
+### EXCERCISE: INHERITANCE MODES
+- Given:
+`class Base {
+    public :
+    void f () {}
+};`
+- Which of these allow calling d.f() from main?
+    1. class D1 : public Base {};
+    2. class D2 : protected Base {};
+    3. class D3 : private Base {};
+- Answer for each: allowed or not allowed?
+    1. allowed
+    2. not allowed
+    3. not allowed
+
+### FINAL, EXPLICIT, NOEXCEPT, OVERRIDE KEYWORDS
+- final:
+    - applied to a class to prevent further inheritance
+    - applied to a virtual function prevents overriding
+    - ex: `class Shape final { <class contents> };`
+    - ex: `void f() override final {}`
+- explicit:
+    - function specifier used to prevent implicit type conversions in constructors and conversion operators
+    - in other words, to use a function that requires a class made object, you would need to initialize or type cast a value to match it; the constructor loses the ability to automatically type cast for you
+    - promotes cleaner, safer, and faster code
+    - typically used on constructors that take a single argument
+    - ex: `explicit Foo(double val) : value(static_cast<int>(val)) {}`
+- noexcept:
+    - tells the compiler that this function cannot throw an exception
+    - if it does the program will terminate
+    - but if true, allows the compiler to generate faster code that is less safe
+    - ex: `void myFunction() noexcept`
+- override:
+    - a specifier that explicitly indicates a member function in a derived class is intended to override a virtual function in a base class
+    - main advantage is that it signals other programmers that this function is mean to override, and will have the compiler throw an error if it is not actually overriding anything
+    - otherwise, the compiler is smart enough to know when something needs to be overridden.
+    - ex: `void f() override {}`
+
