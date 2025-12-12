@@ -404,4 +404,15 @@ int main () {
     - ex: ` void f() override {}`
 
 ### CONSTEXPR AND INLINE
+- `constexpr` is a specifier that indicates a variable or expression can be evaluated at compile time
+    - useful for template parameters and array declarations
+    - if you use constexpr's in conjunction with templates and lambdas, you can create whole functions that are evaluated at compile time
+    - best performace
+- `inline` serves two purposes:
+    1. it hints to the compiler that it should optimize this function
+    2. it marks a function as an exception to the One Definition Rule, meaning a function definition can appear in multiple parts of a program and the compiler will choose 1 definition to use for them all.
+        - notably, functions placed inside header files are implicitly marked inline because of the ODR
 
+### LAMBDAS
+- `auto a = [<capture vars>](<params>) -> (<return type>) {<function body>}`
+- for your square brackets, you can put variables in scope of the lambda that you want to use in the function body. `=` for capturing everything by value, `&` for capturing everything by reference. `[]` captures nothing. Numerous variables can be comma seperated.
