@@ -401,5 +401,7 @@ int main () {
     - a specifier that explicitly indicates a member function in a derived class is intended to override a virtual function in a base class
     - main advantage is that it signals other programmers that this function is mean to override, and will have the compiler throw an error if it is not actually overriding anything
     - otherwise, the compiler is smart enough to know when something needs to be overridden.
-    - ex: `void f() override {}`
+    - ex: ` void f() override {}`
+
+### CONSTEXPR AND INLINE
 
